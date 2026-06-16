@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulados Práticos</title>
+    <style>
+        :root {
+            --primary-color: #0263b0;
+            --hover-color: #014983;
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 2.5rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+
+        .container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            width: 260px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .card p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            width: 80%;
+        }
+
+        .btn:hover {
+            background-color: var(--hover-color);
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Treinamento de Habilidades Práticas</h1>
+
+    <div class="container">
+        <div class="card">
+            <h2>Simulado 1</h2>
+            <p>Acesse o primeiro cenário clínico para treinar o seu tempo e conduta.</p>
+            <a href="simulado_1.html" class="btn">Iniciar Simulado 1</a>
+        </div>
+
+        <div class="card">
+            <h2>Simulado 2</h2>
+            <p>Acesse o segundo cenário clínico para treinar o seu tempo e conduta.</p>
+            <a href="simulado_2.html" class="btn">Iniciar Simulado 2</a>
+        </div>
+    </div>
+
+</body>
+</html>
