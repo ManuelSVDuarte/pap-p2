@@ -142,9 +142,9 @@
     <button id="btn-proximo" class="btn-next" onclick="carregarProximoCaso()">Próximo Caso</button>
 </div>
 
-<script type="module">
-    import casosClinicos from './casos.js';
+<script src="casos.js"></script>
 
+<script>
     let casosEmbaralhados = [];
     let indiceAtual = 0;
 
@@ -158,8 +158,9 @@
         return arr;
     }
 
-    // Inicializa o simulado
+    // Inicializa o simulado assim que a página carregar
     window.onload = () => {
+        // Agora casosClinicos é reconhecido automaticamente do arquivo casos.js
         casosEmbaralhados = embaralharArray(casosClinicos);
         renderizarCaso();
     };
@@ -218,8 +219,7 @@
         return (acertos / palavrasChaveUsuario.length) >= 0.4;
     }
 
-    // Exporta para o escopo global (porque type="module" encapsula)
-    window.verificarRespostas = () => {
+    function verificarRespostas() {
         const caso = casosEmbaralhados[indiceAtual];
 
         const focoUsuario = document.getElementById('input-foco').value;
@@ -232,7 +232,7 @@
 
         document.getElementById('btn-verificar').style.display = 'none';
         document.getElementById('btn-proximo').style.display = 'block';
-    };
+    }
 
     function mostrarFeedback(id, isCorrect, respostaCerta) {
         const el = document.getElementById(`feedback-${id}`);
@@ -246,10 +246,10 @@
         }
     }
 
-    window.carregarProximoCaso = () => {
+    function carregarProximoCaso() {
         indiceAtual++;
         renderizarCaso();
-    };
+    }
 </script>
 
 </body>
