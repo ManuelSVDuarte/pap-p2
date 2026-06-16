@@ -69,7 +69,7 @@ casos = [
     }
 ]
 
-js_content = f"const casosClinicos = {json.dumps(casos, indent=4, ensure_ascii=False)};\n\nexport default casosClinicos;\n"
+js_content = f"const casosClinicos = {json.dumps(casos, indent=4, ensure_ascii=False)}"
 
 with open("casos.js", "w", encoding="utf-8") as f:
     f.write(js_content)
