@@ -41,5 +41,3 @@ const casosSimulado2 = [
     }
 ];
 
-// Exportando o array para que possa ser importado no script principal da sua página
-export default casosSimulado2;
