@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Prático 2</title>
+    <style>
+        :root {
+            --primary-color: #0263b0;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            max-width: 800px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .caso-box {
+            background-color: #e9f2f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 60px;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(2, 99, 176, 0.2);
+        }
+
+        .botoes {
+            display: flex;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            color: white;
+            flex: 1;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #btn-responder { background-color: var(--primary-color); }
+        #btn-proximo { background-color: #333; display: none; }
+        
+        #btn-voltar {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            margin-bottom: 20px;
+            flex: none;
+            width: fit-content;
+        }
+
+        /* Estilos de Feedback */
+        .feedback {
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .feedback.acerto {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .feedback.erro {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .gabarito {
+            font-weight: bold;
+            margin-top: 8px;
+            display: block;
+            color: #333;
+        }
+
+        .status-progresso {
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <button id="btn-voltar" onclick="window.location.href='index.html'">← Voltar ao Início</button>
+        
+        <h1>Simulado 2 - Casos Clínicos</h1>
+        <div class="status-progresso" id="progresso"></div>
+
+        <div class="caso-box">
+            <h2 id="titulo-caso">Carregando...</h2>
+            <p id="texto-caso"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="foco">Foco de Ausculta:</label>
+            <textarea id="foco" placeholder="Digite sua resposta aqui..."></textarea>
+            <div id="feedback-foco" class="feedback"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="som">Som da Ausculta (Padrão esperado):</label>
+            <textarea id="som" placeholder="Digite sua resposta aqui..."></textarea>
+            <div id="feedback-som" class="feedback"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="fisio">Fisiopatologia / Diagnóstico:</label>
+            <textarea id="fisio" placeholder="Digite sua resposta aqui..."></textarea>
+            <div id="feedback-fisio" class="feedback"></div>
+        </div>
+
+        <div class="botoes">
+            <button id="btn-responder">Verificar Respostas</button>
+            <button id="btn-proximo">Próximo Caso →</button>
+        </div>
+    </div>
+
+    <!-- Importando o arquivo de dados -->
+    <script src="casos_simulado_2.js"></script>
+    
+    <script>
+        let casosEmbaralhados = [];
+        let indiceAtual = 0;
+
+        // Função para embaralhar o array (Randomizador)
+        function embaralhar(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Função para normalizar strings (tira acentos, pontuação e deixa minúsculo)
+        function normalizarString(str) {
+            return str.toLowerCase()
+                      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentos
+                      .replace(/[^\w\s]/gi, '') // Remove pontuação
+                      .trim();
+        }
+
+        // Verificador inteligente de string
+        function verificarAcerto(digitado, esperado) {
+            const strDigitada = normalizarString(digitado);
+            const strEsperada = normalizarString(esperado);
+
+            if (strDigitada === "") return false;
+
+            // Pega as palavras digitadas que tenham mais de 3 letras
+            const palavrasDigitadas = strDigitada.split(/\s+/).filter(p => p.length > 3);
+            
+            if (palavrasDigitadas.length === 0) return false;
+
+            // Verifica se pelo menos uma palavra-chave importante digitada está na resposta original
+            let palavrasCertas = 0;
+            palavrasDigitadas.forEach(palavra => {
+                if (strEsperada.includes(palavra)) {
+                    palavrasCertas++;
+                }
+            });
+
+            // Se acertou pelo menos 1 palavra chave relevante, consideramos como acerto parcial/correto
+            return palavrasCertas > 0;
+        }
+
+        function carregarCaso() {
+            if (indiceAtual >= casosEmbaralhados.length) {
+                document.querySelector('.container').innerHTML = `
+                    <h1 style="text-align:center;">Simulado Concluído! 🎉</h1>
+                    <button style="background-color: var(--primary-color); padding: 12px; width: 100%; border:none; color:white; border-radius:8px; cursor:pointer;" onclick="location.reload()">Fazer Novamente (Reembaralhar)</button>
+                    <button style="margin-top: 10px; background-color: #333; padding: 12px; width: 100%; border:none; color:white; border-radius:8px; cursor:pointer;" onclick="window.location.href='index.html'">Voltar ao Menu</button>
+                `;
+                return;
+            }
+
+            const caso = casosEmbaralhados[indiceAtual];
+            
+            document.getElementById('progresso').innerText = `Caso ${indiceAtual + 1} de ${casosEmbaralhados.length}`;
+            document.getElementById('titulo-caso').innerText = caso.titulo;
+            document.getElementById('texto-caso').innerText = caso.caso_clinico;
+
+            // Limpa campos e feedbacks
+            ['foco', 'som', 'fisio'].forEach(id => {
+                document.getElementById(id).value = '';
+                document.getElementById(id).disabled = false;
+                const feedbackDiv = document.getElementById(`feedback-${id}`);
+                feedbackDiv.className = 'feedback';
+                feedbackDiv.innerHTML = '';
+            });
+
+            document.getElementById('btn-responder').style.display = 'block';
+            document.getElementById('btn-proximo').style.display = 'none';
+        }
+
+        function exibirFeedback(id, digitado, esperado) {
+            const feedbackDiv = document.getElementById(`feedback-${id}`);
+            const acertou = verificarAcerto(digitado, esperado);
+
+            if (acertou) {
+                feedbackDiv.classList.add('acerto');
+                feedbackDiv.innerHTML = `<strong>Acertou termos-chave! ✅</strong><br><span class="gabarito">Gabarito Completo:</span> ${esperado}`;
+            } else {
+                feedbackDiv.classList.add('erro');
+                feedbackDiv.innerHTML = `<strong>Incompleto ou Incorreto ❌</strong><br><span class="gabarito">Gabarito Completo:</span> ${esperado}`;
+            }
+            
+            // Trava o campo de texto após responder
+            document.getElementById(id).disabled = true;
+        }
+
+        // Eventos dos botões
+        document.getElementById('btn-responder').addEventListener('click', () => {
+            const caso = casosEmbaralhados[indiceAtual];
+            
+            exibirFeedback('foco', document.getElementById('foco').value, caso.foco_ausculta);
+            exibirFeedback('som', document.getElementById('som').value, caso.som_ausculta);
+            exibirFeedback('fisio', document.getElementById('fisio').value, caso.fisiopatologia);
+
+            document.getElementById('btn-responder').style.display = 'none';
+            document.getElementById('btn-proximo').style.display = 'block';
+        });
+
+        document.getElementById('btn-proximo').addEventListener('click', () => {
+            indiceAtual++;
+            carregarCaso();
+            window.scrollTo(0, 0); // Volta pro topo da página
+        });
+
+        // Inicialização
+        window.onload = () => {
+            // Clona e embaralha os casos usando a variável do arquivo .js
+            casosEmbaralhados = embaralhar([...casosSimulado2]);
+            carregarCaso();
+        };
+    </script>
+</body>
+</html>
