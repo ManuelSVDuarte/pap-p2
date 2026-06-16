@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado de Ausculta e Fisiopatologia Cardíaca</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --bg-color: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+        .caso-box {
+            background-color: #eef2f5;
+            padding: 15px;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .btn-next {
+            background-color: var(--primary-color);
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .btn-next:hover {
+            background-color: #1a252f;
+        }
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: var(--danger-color);
+            border: 1px solid #f5c6cb;
+        }
+        .answer-reveal {
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #555;
+            font-style: italic;
+        }
+        .progress {
+            text-align: right;
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simulado de Casos Clínicos</h1>
+    <div class="progress" id="progress">Caso 1 de X</div>
+    
+    <div class="caso-box" id="caso-texto">
+        Carregando caso...
+    </div>
+
+    <div class="form-group">
+        <label for="input-foco">Foco de Ausculta:</label>
+        <input type="text" id="input-foco" placeholder="Ex: Foco mitral">
+        <div class="feedback" id="feedback-foco"></div>
+    </div>
+
+    <div class="form-group">
+        <label for="input-som">Som da Ausculta (Padrão esperado):</label>
+        <textarea id="input-som" rows="3" placeholder="Ex: Presença de terceira bulha..."></textarea>
+        <div class="feedback" id="feedback-som"></div>
+    </div>
+
+    <div class="form-group">
+        <label for="input-fisio">Fisiopatologia / Diagnóstico:</label>
+        <textarea id="input-fisio" rows="4" placeholder="Descreva a patologia e a mecânica por trás dos achados..."></textarea>
+        <div class="feedback" id="feedback-fisio"></div>
+    </div>
+
+    <button id="btn-verificar" onclick="verificarRespostas()">Verificar Respostas</button>
+    <button id="btn-proximo" class="btn-next" onclick="carregarProximoCaso()">Próximo Caso</button>
+</div>
+
+<script type="module">
+    import casosClinicos from './casos.js';
+
+    let casosEmbaralhados = [];
+    let indiceAtual = 0;
+
+    // Função para embaralhar o array (Algoritmo de Fisher-Yates)
+    function embaralharArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Inicializa o simulado
+    window.onload = () => {
+        casosEmbaralhados = embaralharArray(casosClinicos);
+        renderizarCaso();
+    };
+
+    function renderizarCaso() {
+        if (indiceAtual >= casosEmbaralhados.length) {
+            document.getElementById('caso-texto').innerHTML = "<strong>Parabéns! Você concluiu todos os casos.</strong>";
+            document.querySelectorAll('.form-group, #btn-verificar, #btn-proximo').forEach(el => el.style.display = 'none');
+            return;
+        }
+
+        const caso = casosEmbaralhados[indiceAtual];
+        document.getElementById('caso-texto').innerText = caso.caso_clinico;
+        document.getElementById('progress').innerText = `Caso ${indiceAtual + 1} de ${casosEmbaralhados.length}`;
+        
+        // Limpar inputs e feedbacks
+        document.getElementById('input-foco').value = '';
+        document.getElementById('input-som').value = '';
+        document.getElementById('input-fisio').value = '';
+        
+        const feedbacks = ['foco', 'som', 'fisio'];
+        feedbacks.forEach(id => {
+            const el = document.getElementById(`feedback-${id}`);
+            el.style.display = 'none';
+            el.className = 'feedback';
+            el.innerHTML = '';
+        });
+
+        document.getElementById('btn-verificar').style.display = 'block';
+        document.getElementById('btn-proximo').style.display = 'none';
+    }
+
+    // Verificador de string flexível (Normaliza tirando acentos e maiúsculas)
+    function verificarString(respostaUsuario, respostaCorreta) {
+        if (!respostaUsuario.trim()) return false;
+
+        const normalizar = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        const usu = normalizar(respostaUsuario);
+        const cor = normalizar(respostaCorreta);
+
+        // Separa as palavras do usuário maiores que 3 letras para checar palavras-chave
+        const palavrasChaveUsuario = usu.split(/\s+/).filter(p => p.length > 3);
+        
+        // Se escreveu pouco, checa se está contido na resposta correta
+        if (palavrasChaveUsuario.length === 0) {
+            return cor.includes(usu);
+        }
+
+        // Verifica quantas palavras-chave do usuário estão presentes na resposta correta
+        let acertos = 0;
+        palavrasChaveUsuario.forEach(palavra => {
+            if (cor.includes(palavra)) acertos++;
+        });
+
+        // Considera correto se pelo menos 40% das palavras relevantes informadas pelo usuário baterem com o gabarito
+        return (acertos / palavrasChaveUsuario.length) >= 0.4;
+    }
+
+    // Exporta para o escopo global (porque type="module" encapsula)
+    window.verificarRespostas = () => {
+        const caso = casosEmbaralhados[indiceAtual];
+
+        const focoUsuario = document.getElementById('input-foco').value;
+        const somUsuario = document.getElementById('input-som').value;
+        const fisioUsuario = document.getElementById('input-fisio').value;
+
+        mostrarFeedback('foco', verificarString(focoUsuario, caso.foco_ausculta), caso.foco_ausculta);
+        mostrarFeedback('som', verificarString(somUsuario, caso.som_ausculta), caso.som_ausculta);
+        mostrarFeedback('fisio', verificarString(fisioUsuario, caso.fisiopatologia), caso.fisiopatologia);
+
+        document.getElementById('btn-verificar').style.display = 'none';
+        document.getElementById('btn-proximo').style.display = 'block';
+    };
+
+    function mostrarFeedback(id, isCorrect, respostaCerta) {
+        const el = document.getElementById(`feedback-${id}`);
+        el.style.display = 'block';
+        if (isCorrect) {
+            el.classList.add('correct');
+            el.innerHTML = `<strong>Correto!</strong> <div class="answer-reveal">Gabarito: ${respostaCerta}</div>`;
+        } else {
+            el.classList.add('incorrect');
+            el.innerHTML = `<strong>Incorreto ou incompleto.</strong> <div class="answer-reveal">Gabarito esperado: ${respostaCerta}</div>`;
+        }
+    }
+
+    window.carregarProximoCaso = () => {
+        indiceAtual++;
+        renderizarCaso();
+    };
+</script>
+
+</body>
+</html>
